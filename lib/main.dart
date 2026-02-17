@@ -8,7 +8,7 @@ void main() {
           title: const Text("My application"),
         ),
         body: const Center(
-          child: Text("Hello world!"),
+          child: Text("Hello world??"),
         ),
       ),
     ),
