@@ -28,10 +28,10 @@ Future<void> main() async {
   runApp(GetMaterialApp(
     initialRoute: initial,
       getPages: [
-        GetPage(name: "/", page: () => HomeScreen()),
+        GetPage(name: "/", page: () => const HomeScreen()),
         GetPage(name: "/welcome", page: () => IntroScreen()),
         GetPage(name: "/settings", page: () => SettingsScreen()),
-        GetPage(name: "/entry/:dateTimeString", page: () => EntryScreen()),
+        GetPage(name: "/entry/:dateTimeString", page: () => const EntryScreen()),
       ],
   ));
 }

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import '../components/entry_form.dart';
 import '../components/floating_button.dart';

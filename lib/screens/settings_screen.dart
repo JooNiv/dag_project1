@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 
 import '../services/settings_service.dart';
 import '../services/entry_service.dart';

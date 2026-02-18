@@ -20,8 +20,8 @@ class ScreenBase extends StatelessWidget {
     return Scaffold(
       appBar: const AppBarComponent(),
       floatingActionButton: floatingActionButton,
-      drawer: DrawerComponent(),
-      bottomNavigationBar: BottomNav(),
+      drawer: const DrawerComponent(),
+      bottomNavigationBar: const BottomNav(),
       body: Padding(
             padding: const EdgeInsets.only(top: 20, bottom: 20),
             child: body,

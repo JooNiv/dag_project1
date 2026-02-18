@@ -6,6 +6,8 @@ import '../services/settings_service.dart';
 class GreetUser extends StatelessWidget {
   final SettingsService settingsService = Get.find<SettingsService>();
 
+  GreetUser({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
