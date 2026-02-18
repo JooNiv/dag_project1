@@ -30,6 +30,7 @@ dependencies:
   form_builder_validators: 11.0.0
   hive_ce: 2.5.0+2
   hive_ce_flutter: 2.0.0
+  flutter_colorpicker: 1.1.0
 
 
 dev_dependencies:

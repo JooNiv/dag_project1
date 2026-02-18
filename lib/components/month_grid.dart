@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
 
 import "../utils/date_utils.dart";
 import '../services/entry_service.dart';
@@ -31,7 +28,7 @@ class MonthGrid extends StatelessWidget {
           ],
         ),
         width: 500,
-        padding: const EdgeInsets.only(right: 20, left: 20, top: 50, bottom: 5),
+        padding: const EdgeInsets.only(right: 20, left: 20, top: 20, bottom: 10),
         margin: const EdgeInsets.only(bottom: 20),
         child: Column(children: [
           Text(
@@ -39,8 +36,8 @@ class MonthGrid extends StatelessWidget {
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           GridView.builder(
-            shrinkWrap: true, // Add this
-            physics: const NeverScrollableScrollPhysics(), // Add this
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 childAspectRatio: 1,
                 crossAxisSpacing: 4,
@@ -50,11 +47,9 @@ class MonthGrid extends StatelessWidget {
               if (index < 7) {
                 return _buildWeekdayHeader(index);
               }
-              // Padding squares
               else if (index < padBeginningSquares) {
                 return _buildPaddingSquare();
               }
-              // Date squares
               else {
                 final day = index + 1 - padBeginningSquares;
                 final dateTimeString = "2026-${month + 1}-$day";
@@ -64,6 +59,7 @@ class MonthGrid extends StatelessWidget {
 
                 return _buildDateSquare(
                   day: day,
+                  month: month,
                   color: color,
                   isToday: dateTimeString == todayDateTimeString,
                 );
@@ -94,7 +90,7 @@ Widget _buildPaddingSquare() {
 }
 
 Widget _buildDateSquare(
-    {required int day, required Color color, required bool isToday}) {
+    {required int day, required month, required Color color, required bool isToday}) {
   final decoration = isToday
       ? BoxDecoration(
           color: color,
@@ -102,8 +98,13 @@ Widget _buildDateSquare(
         )
       : BoxDecoration(color: color);
 
-  return Container(
-    decoration: decoration,
-    child: Center(child: Text("$day")),
+  return GestureDetector(
+    onTap: () {
+      Get.toNamed("/entry/${DateTime.now().year}-${month + 1}-$day");
+    },
+    child: Container(
+      decoration: decoration,
+      child: Center(child: Text("$day")),
+    ),
   );
 }

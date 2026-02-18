@@ -20,6 +20,16 @@ weekdayIndexToName(int index) {
   }
 }
 
+dateTimeStringToDateTime(String dateTimeString) {
+  final parts = dateTimeString.split("-");
+  if (parts.length != 3) return null;
+  final year = int.tryParse(parts[0]);
+  final month = int.tryParse(parts[1]);
+  final day = int.tryParse(parts[2]);
+  if (year == null || month == null || day == null) return null;
+  return DateTime(year, month, day);
+}
+
 getDayNameThisYear(int month, int day) {
   final date = DateTime(DateTime.now().year, month + 1, day);
   return weekdayIndexToName(date.weekday);
@@ -27,7 +37,6 @@ getDayNameThisYear(int month, int day) {
 
 getDaysInAMonth(int month) {
   if (month == 1) {
-    // Check for leap year
     final year = DateTime.now().year;
     if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
       return 29;

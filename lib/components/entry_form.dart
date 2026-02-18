@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
 
 import "../utils/date_utils.dart";
 import "../services/entry_service.dart";
@@ -20,7 +19,7 @@ class EntryForm extends StatefulWidget {
 class _EntryFormState extends State<EntryForm> {
   String? selectedMood;
 
-  static final _formKey = GlobalKey<FormBuilderState>();
+  final _formKey = GlobalKey<FormBuilderState>();
   final EntryService entryService = Get.find<EntryService>();
   final SettingsService settingsService = Get.find<SettingsService>();
 
@@ -33,16 +32,19 @@ class _EntryFormState extends State<EntryForm> {
         _formKey.currentState?.value["mood"],
         _formKey.currentState?.value["comment"],
       );
-      _formKey.currentState?.reset();
-    }
-  }
 
-  _clear() async {
-    await entryService.removeAll();
+      if (Get.currentRoute.startsWith('/entry')) {
+        Get.toNamed('/');
+      }
+      //_formKey.currentState?.reset();
+    }
   }
 
   _delete() async {
     await entryService.deleteEntry(widget.dateTimeString);
+    if (Get.currentRoute.startsWith('/entry')) {
+      Get.toNamed('/');
+    }
   }
 
   @override
@@ -55,11 +57,20 @@ class _EntryFormState extends State<EntryForm> {
         children: [
           Container(
               padding: const EdgeInsets.only(bottom: 20),
-              child: Text(
-                "Today is ${DateTime.now().day} ${monthNames[DateTime.now().month - 1]} ${DateTime.now().year}, ${getDayNameThisYear(DateTime.now().month - 1, DateTime.now().day)}\nHow was your day?",
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              )),
+              child: Get.currentRoute.startsWith('/entry')
+                  ? Builder(
+                      builder: (context) {
+                        var date = dateTimeStringToDateTime(widget.dateTimeString);
+                        return Text(
+                          "Entry for ${date?.day} ${monthNames[date!.month - 1]} ${date.year}, ${getDayNameThisYear(date.month - 1, date.day)}",
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        );
+                      },
+                    )
+                  : Text(
+                      "Today is ${DateTime.now().day} ${monthNames[DateTime.now().month - 1]} ${DateTime.now().year}, ${getDayNameThisYear(DateTime.now().month - 1, DateTime.now().day)}\nHow was your day?",
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    )),
           FormBuilderField<String>(
             name: "mood",
             validator: FormBuilderValidators.required(),
@@ -112,15 +123,15 @@ class _EntryFormState extends State<EntryForm> {
           const SizedBox(height: 20),
           FormBuilderTextField(
             name: "comment",
+            initialValue:
+                entryService.getEntry(widget.dateTimeString)?["comment"],
             validator: FormBuilderValidators.required(),
             decoration: const InputDecoration(labelText: "Comment"),
           ),
           const SizedBox(height: 20),
           ElevatedButton(onPressed: _submit, child: const Text("Submit")),
           const SizedBox(height: 20),
-          ElevatedButton(onPressed: _clear, child: const Text("Delete All")),
-          const SizedBox(height: 20),
-          ElevatedButton(onPressed: _delete, child: const Text("Delete This"))
+          ElevatedButton(onPressed: _delete, child: const Text("Delete Entry")),
         ],
       ),
     );
