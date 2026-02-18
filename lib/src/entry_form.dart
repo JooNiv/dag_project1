@@ -1,0 +1,147 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:get/get.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
+
+import "../utils/date_utils.dart";
+import "../services/entry_service.dart";
+
+class EntryForm extends StatefulWidget {
+  final String dateTimeString;
+
+  const EntryForm({super.key, required this.dateTimeString});
+
+  @override
+  State<EntryForm> createState() => _EntryFormState();
+}
+
+class _EntryFormState extends State<EntryForm> {
+  static const Map<String, Color> moodColors = {
+    "Very Bad": Color.fromARGB(255, 156, 39, 176),
+    "Bad": Color.fromARGB(255, 236, 8, 8),
+    "Okay": Color.fromARGB(255, 255, 153, 0),
+    "Good": Color.fromARGB(255, 255, 235, 59),
+    "Very Good": Color.fromARGB(255, 76, 175, 80),
+  };
+
+  String? selectedMood;
+
+  static final _formKey = GlobalKey<FormBuilderState>();
+  final EntryService entryService = Get.find<EntryService>();
+
+  _submit() async {
+    if (_formKey.currentState!.saveAndValidate()) {
+      await entryService.saveEntryAsync(
+        widget.dateTimeString,
+        _formKey.currentState?.value["mood"],
+        _formKey.currentState?.value["comment"],
+      );
+      _formKey.currentState?.reset();
+    }
+  }
+
+  _clear() async{
+    await entryService.removeAll();
+  }
+
+  _delete() async {
+    await entryService.deleteEntry(widget.dateTimeString);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(right: 50, left: 50, top: 50),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      width: 500,
+      child: FormBuilder(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Text(
+                  "Today is ${DateTime.now().day} ${monthNames[DateTime.now().month - 1]} ${DateTime.now().year}, ${getDayNameThisYear(DateTime.now().month - 1, DateTime.now().day)}\nHow was your day?",
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )),
+            FormBuilderField<String>(
+              name: "mood",
+              validator: FormBuilderValidators.required(),
+              builder: (FormFieldState<String> field) {
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: moodColors.entries.map((entry) {
+                        final isSelected = field.value == entry.key;
+                        return GestureDetector(
+                          onTap: () => field.didChange(entry.key),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: entry.value,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Colors.black
+                                        : Colors.grey.shade300,
+                                    width: isSelected ? 3 : 1,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(entry.key,
+                                  style: const TextStyle(fontSize: 10)),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    if (field.hasError)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          field.errorText ?? '',
+                          style: TextStyle(
+                              color: Colors.red.shade700, fontSize: 12),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            FormBuilderTextField(
+              name: "comment",
+              validator: FormBuilderValidators.required(),
+              decoration: const InputDecoration(labelText: "Comment"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: _submit, child: const Text("Submit")),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: _clear, child: const Text("Delete All")),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: _delete, child: const Text("Delete This"))
+          ],
+        ),
+      ),
+    );
+  }
+}
