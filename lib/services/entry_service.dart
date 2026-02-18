@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
+import 'settings_service.dart';
+
 
 class EntryService extends GetxController {
   final storage = Hive.box("entries");
+
+  final SettingsService settingsService = Get.find<SettingsService>();
 
   saveEntryAsync(String dateTimeString, String mood, String comment) async {
     await storage.put(dateTimeString, {"mood": mood, "comment": comment});
@@ -18,23 +22,11 @@ class EntryService extends GetxController {
   getColorForDate(String dateTimeString) {
     var entry = storage.get(dateTimeString);
     if (entry == null) {
-      return Colors.transparent;
+      return Colors.grey;
     }
 
-    switch (entry["mood"]) {
-      case "Very Bad":
-        return const Color.fromARGB(255, 156, 39, 176); // Purple
-      case "Bad":
-        return const Color.fromARGB(255, 236, 8, 8); // Red
-      case "Okay":
-        return const Color.fromARGB(255, 255, 153, 0); // Orange
-      case "Good":
-        return const Color.fromARGB(255, 255, 235, 59); // Yellow
-      case "Very Good":
-        return const Color.fromARGB(255, 76, 175, 80); // Green
-      default:
-        return Colors.transparent;
-    }
+    var color = settingsService.getColorSettings()[entry["mood"]];
+    return color ?? Colors.grey;
   }
 
   deleteEntry(String dateTimeString) async {

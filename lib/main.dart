@@ -1,56 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
-import "src/entry_form.dart";
-import "src/month_grid.dart";
 import "services/entry_service.dart";
+import "services/settings_service.dart";
+import "screens/home_screen.dart";
 
 Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox("entries");
+  await Hive.openBox("settings");
 
   Get.lazyPut<EntryService>(() => EntryService());
+  Get.lazyPut<SettingsService>(() => SettingsService());
 
-  runApp(
-    GetMaterialApp(
-      home: HomeScreen(),
+  runApp(GetMaterialApp(
+    home: Scaffold(
+      appBar: AppBar(
+        title: const Text("Mood Pixels"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 20, bottom: 20),
+        child: HomeScreen(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.settings),
+      ),
+      drawer: const Drawer(
+        child: Text("Settings will go here"),
+      ),
+      bottomNavigationBar: Container(
+        height: 50,
+        color: Colors.blueGrey,
+        child: const Center(
+          child: Text(
+            "Made by Joonas with Flutter",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
     ),
-  );
-}
-
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    String dateTimeString =
-        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
-    return Scaffold(
-        body: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Center(
-            child: EntryForm(dateTimeString: dateTimeString),
-          ),
-        ),
-        const SizedBox(width: 20),
-        SingleChildScrollView(
-          child: Column(
-            children: [
-              GetBuilder<EntryService>(
-                builder: (_) => Column(
-                  children:
-                      List.generate(12, (index) => MonthGrid(month: index)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ));
-  }
+  ));
 }

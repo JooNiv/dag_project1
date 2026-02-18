@@ -6,6 +6,7 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 
 import "../utils/date_utils.dart";
 import "../services/entry_service.dart";
+import '../services/settings_service.dart';
 
 class EntryForm extends StatefulWidget {
   final String dateTimeString;
@@ -17,18 +18,14 @@ class EntryForm extends StatefulWidget {
 }
 
 class _EntryFormState extends State<EntryForm> {
-  static const Map<String, Color> moodColors = {
-    "Very Bad": Color.fromARGB(255, 156, 39, 176),
-    "Bad": Color.fromARGB(255, 236, 8, 8),
-    "Okay": Color.fromARGB(255, 255, 153, 0),
-    "Good": Color.fromARGB(255, 255, 235, 59),
-    "Very Good": Color.fromARGB(255, 76, 175, 80),
-  };
 
   String? selectedMood;
 
   static final _formKey = GlobalKey<FormBuilderState>();
   final EntryService entryService = Get.find<EntryService>();
+  final SettingsService settingsService = Get.find<SettingsService>();
+
+  Map<String, Color> moodColors = SettingsService().getColorSettings();
 
   _submit() async {
     if (_formKey.currentState!.saveAndValidate()) {
