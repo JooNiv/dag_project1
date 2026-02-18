@@ -23,6 +23,7 @@ class SettingsService extends GetxController {
     if (raw == null) {
       return {
         "Very Bad": const Color.fromARGB(255, 156, 39, 176),
+        "Bad": const Color.fromARGB(255, 236, 8, 8),
         "Okay": const Color.fromARGB(255, 255, 153, 0),
         "Good": const Color.fromARGB(255, 255, 235, 59),
         "Very Good": const Color.fromARGB(255, 76, 175, 80),
