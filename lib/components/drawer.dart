@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'buttons.dart';
+
 class DrawerComponent extends StatelessWidget {
   const DrawerComponent({super.key});
 
@@ -11,34 +13,34 @@ class DrawerComponent extends StatelessWidget {
         children: [
           const SizedBox(height: 20),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: NavDrawerButtons(
                 onPressed: () => Get.toNamed("/welcome"),
-                child: const Text("Intro Screen"),
+                text: "Intro Screen",
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 0),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: NavDrawerButtons(
                 onPressed: () => Get.toNamed("/settings"),
-                child: const Text("Settings"),
+                text: "Settings",
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 0),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: NavDrawerButtons(
                 onPressed: () => Get.toNamed("/"),
-                child: const Text("Home"),
+                text: "Home",
               ),
             ),
           ),

@@ -6,14 +6,15 @@ import '../components/floating_button.dart';
 import '../components/screen_base.dart';
 
 class EntryScreen extends StatelessWidget {
-
   const EntryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    String dateTimeString = Get.parameters["dateTimeString"] ?? "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
+    String dateTimeString = Get.parameters["dateTimeString"] ??
+        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
     return ScreenBase(
-      floatingActionButton: const FloatingButton(route: "/", icon: Icons.arrow_back),
+      floatingActionButton:
+          const FloatingButton(route: "/", icon: Icons.arrow_back),
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Center(
@@ -32,14 +33,14 @@ class EntryScreen extends StatelessWidget {
             ),
             width: 1000,
             height: MediaQuery.of(context).size.height,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  EntryForm(dateTimeString: dateTimeString),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: EntryForm(dateTimeString: dateTimeString),
+                ),
+              ],
             ),
           ),
         ),

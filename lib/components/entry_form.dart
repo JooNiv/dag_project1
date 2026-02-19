@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import "../services/entry_service.dart";
 import '../services/settings_service.dart';
 import '../utils/date_utils.dart';
+import 'buttons.dart';
+import 'responsive_widget.dart';
 
 class EntryFormController extends GetxController {
   final EntryService entryService = Get.find<EntryService>();
@@ -20,7 +22,8 @@ class EntryFormController extends GetxController {
 
   void setComment(String value) => comment.value = value;
 
-  Future<void> submit(String dateTimeString, GlobalKey<FormBuilderState> formKey) async {
+  Future<void> submit(
+      String dateTimeString, GlobalKey<FormBuilderState> formKey) async {
     if (formKey.currentState!.saveAndValidate()) {
       await entryService.saveEntryAsync(
         dateTimeString,
@@ -74,13 +77,15 @@ class EntryForm extends StatelessWidget {
                         var date = dateTimeStringToDateTime(dateTimeString);
                         return Text(
                           "Entry for ${date?.day} ${monthNames[date!.month - 1]} ${date.year}, ${getDayNameThisYear(date.month - 1, date.day)}",
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         );
                       },
                     )
                   : Text(
                       "Today is ${DateTime.now().day} ${monthNames[DateTime.now().month - 1]} ${DateTime.now().year}, ${getDayNameThisYear(DateTime.now().month - 1, DateTime.now().day)}\nHow was your day?",
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     )),
           Obx(() => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,7 +94,8 @@ class EntryForm extends StatelessWidget {
                   return GestureDetector(
                     onTap: () {
                       controller.setMood(entry.key);
-                      formKey.currentState?.fields['mood']?.didChange(entry.key);
+                      formKey.currentState?.fields['mood']
+                          ?.didChange(entry.key);
                     },
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -136,19 +142,29 @@ class EntryForm extends StatelessWidget {
                 name: "comment",
                 initialValue: controller.comment.value,
                 validator: FormBuilderValidators.required(),
-                decoration: const InputDecoration(labelText: "Comment"),
+                decoration: const InputDecoration(
+                    labelText: "Comment", border: OutlineInputBorder()),
                 onChanged: (val) => controller.setComment(val ?? ''),
               )),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => controller.submit(dateTimeString, formKey),
-            child: const Text("Submit"),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => controller.deleteEntry(dateTimeString),
-            child: const Text("Delete Entry"),
-          ),
+          
+          Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+            SizedBox(
+              width: double.infinity,
+              child: NormalButton(
+                text: "Submit",
+                onPressed: () => controller.submit(dateTimeString, formKey),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: DangerButton(
+                text: "Delete Entry",
+                onPressed: () => controller.deleteEntry(dateTimeString),
+              ),
+            ),
+          ])
         ],
       ),
     );
