@@ -19,7 +19,9 @@ class StatisticsScreen extends StatelessWidget {
         body: ResponsiveWidget(
             mobile: MobileStatisticsScreen(),
             tablet: TabletStatisticsScreen(),
-            desktop: Center(child: SizedBox(width: 1000, child: DesktopStatisticsScreen()))));
+            desktop: Center(
+                child:
+                    SizedBox(width: 1000, child: DesktopStatisticsScreen()))));
   }
 }
 
@@ -52,10 +54,17 @@ class MobileStatisticsScreen extends StatelessWidget {
 
 enum _StatisticsLayout { mobile, tablet, desktop }
 
-class _StatisticsDashboard extends StatelessWidget {
+class _StatisticsDashboard extends StatefulWidget {
   const _StatisticsDashboard({required this.layout});
 
   final _StatisticsLayout layout;
+
+  @override
+  State<_StatisticsDashboard> createState() => _StatisticsDashboardState();
+}
+
+class _StatisticsDashboardState extends State<_StatisticsDashboard> {
+  DateTimeRange? _selectedDateRange;
 
   List<PieChartSectionData> _buildPieSections(Map<String, int> statistics) {
     final sections = <PieChartSectionData>[];
@@ -180,20 +189,126 @@ class _StatisticsDashboard extends StatelessWidget {
   }
 
   double get _chartHeight {
-    if (layout == _StatisticsLayout.mobile) {
+    if (widget.layout == _StatisticsLayout.mobile) {
       return 240;
     }
     return 260;
   }
 
   double get _horizontalPadding {
-    if (layout == _StatisticsLayout.mobile) {
+    if (widget.layout == _StatisticsLayout.mobile) {
       return 12;
     }
-    if (layout == _StatisticsLayout.tablet) {
+    if (widget.layout == _StatisticsLayout.tablet) {
       return 16;
     }
     return 24;
+  }
+
+  Future<void> _pickDateRange(BuildContext context) async {
+    final now = DateTime.now();
+    final selected = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 10, 1, 1),
+      lastDate: DateTime(now.year + 1, 12, 31),
+      initialDateRange: _selectedDateRange,
+      helpText: 'Select date range',
+    );
+
+    if (selected == null) {
+      return;
+    }
+
+    setState(() {
+      _selectedDateRange = selected;
+    });
+  }
+
+  void _clearDateRange() {
+    setState(() {
+      _selectedDateRange = null;
+    });
+  }
+
+  String _formatDateRangeLabel(BuildContext context) {
+    if (_selectedDateRange == null) {
+      return 'All time';
+    }
+
+    final localizations = MaterialLocalizations.of(context);
+    final start = localizations.formatCompactDate(_selectedDateRange!.start);
+    final end = localizations.formatCompactDate(_selectedDateRange!.end);
+    return '$start - $end';
+  }
+
+  Widget _buildDateRangeCard(BuildContext context) {
+    final hasDateRange = _selectedDateRange != null;
+
+    if (widget.layout == _StatisticsLayout.mobile) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Date Range',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              Text(_formatDateRangeLabel(context)),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => _pickDateRange(context),
+                      child: const Text('Select Range'),
+                    ),
+                  ),
+                  if (hasDateRange) ...[
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: _clearDateRange,
+                        child: const Text('Clear'),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Text(
+              'Date Range:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: Text(_formatDateRangeLabel(context))),
+            OutlinedButton(
+              onPressed: () => _pickDateRange(context),
+              child: const Text('Select Range'),
+            ),
+            if (hasDateRange) ...[
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: _clearDateRange,
+                child: const Text('Clear'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildChartCard({
@@ -225,11 +340,21 @@ class _StatisticsDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<EntryService>(
       builder: (entryService) {
-        final moodStats = entryService.getStatistics();
-        final monthlyStats = entryService.getMonthlyStatistics(monthsBack: 6);
-        final commentMonthlyStats =
-            entryService.getMonthlyCommentStatistics(monthsBack: 6);
-        final commentWordStats = entryService.getCommentWordStatistics();
+        final startDate = _selectedDateRange?.start;
+        final endDate = _selectedDateRange?.end;
+        final moodStats = entryService.getStatistics(startDate, endDate);
+        final monthlyStats = entryService.getMonthlyStatistics(
+          monthsBack: 6,
+          startDate: startDate,
+          endDate: endDate,
+        );
+        final commentMonthlyStats = entryService.getMonthlyCommentStatistics(
+          monthsBack: 6,
+          startDate: startDate,
+          endDate: endDate,
+        );
+        final commentWordStats =
+            entryService.getCommentWordStatistics(startDate, endDate);
         final totalEntries =
             moodStats.values.fold<int>(0, (sum, count) => sum + count);
         final topMood = moodStats.entries.isEmpty
@@ -239,9 +364,12 @@ class _StatisticsDashboard extends StatelessWidget {
                 .first;
 
         if (totalEntries == 0) {
-          return const Center(
-            child:
-                Text('No entries yet. Add your first entry to see statistics.'),
+          return Center(
+            child: Text(
+              _selectedDateRange == null
+                  ? 'No entries yet. Add your first entry to see statistics.'
+                  : 'No entries found in the selected date range.',
+            ),
           );
         }
 
@@ -264,15 +392,16 @@ class _StatisticsDashboard extends StatelessWidget {
         );
 
         final entriesPerMonthCard = _buildChartCard(
-          title: 'Entries per Month (Last 6 Months)',
+          title: _selectedDateRange == null
+              ? 'Entries per Month (Last 6 Months)'
+              : 'Entries per Month',
           child: BarChart(
             BarChartData(
               barGroups: _buildMonthlyBars(monthlyStats),
               barTouchData: BarTouchData(
                 enabled: true,
                 touchTooltipData: BarTouchTooltipData(
-                  tooltipBgColor:
-                      Colors.deepPurple,
+                  tooltipBgColor: Colors.deepPurple,
                   tooltipRoundedRadius: 8,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     return BarTooltipItem(
@@ -332,7 +461,9 @@ class _StatisticsDashboard extends StatelessWidget {
         );
 
         final commentsPerMonthCard = _buildChartCard(
-          title: 'Comments per Month',
+          title: _selectedDateRange == null
+              ? 'Comments per Month (Last 6 Months)'
+              : 'Comments per Month',
           child: commentMonthlyStats.isEmpty
               ? const Center(
                   child: Text('No comments yet for this period.'),
@@ -343,8 +474,7 @@ class _StatisticsDashboard extends StatelessWidget {
                     barTouchData: BarTouchData(
                       enabled: true,
                       touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor:
-                            Colors.deepPurple,
+                        tooltipBgColor: Colors.deepPurple,
                         tooltipRoundedRadius: 8,
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
                           return BarTooltipItem(
@@ -437,7 +567,9 @@ class _StatisticsDashboard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (layout == _StatisticsLayout.mobile) ...[
+              _buildDateRangeCard(context),
+              const SizedBox(height: 12),
+              if (widget.layout == _StatisticsLayout.mobile) ...[
                 _kpiCard(
                   title: 'Total Entries',
                   value: '$totalEntries',
@@ -489,7 +621,7 @@ class _StatisticsDashboard extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 24),
-              if (layout == _StatisticsLayout.mobile) ...[
+              if (widget.layout == _StatisticsLayout.mobile) ...[
                 moodDistributionCard,
                 const SizedBox(height: 16),
                 entriesPerMonthCard,
@@ -504,7 +636,7 @@ class _StatisticsDashboard extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 16),
-              if (layout == _StatisticsLayout.mobile) ...[
+              if (widget.layout == _StatisticsLayout.mobile) ...[
                 commentsPerMonthCard,
                 const SizedBox(height: 16),
                 wordInsightCard,
