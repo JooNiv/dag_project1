@@ -14,13 +14,33 @@ class EntryService extends GetxController {
 
   final SettingsService settingsService = Get.find<SettingsService>();
 
+  DateTime _normalizeDate(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
+
+  bool _isInDateRange(DateTime date, {DateTime? startDate, DateTime? endDate}) {
+    final normalizedDate = _normalizeDate(date);
+    final normalizedStart =
+        startDate == null ? null : _normalizeDate(startDate);
+    final normalizedEnd = endDate == null ? null : _normalizeDate(endDate);
+
+    final isAfterStart =
+        normalizedStart == null || !normalizedDate.isBefore(normalizedStart);
+    final isBeforeEnd =
+        normalizedEnd == null || !normalizedDate.isAfter(normalizedEnd);
+    return isAfterStart && isBeforeEnd;
+  }
+
   int _countWords(String text) {
     final normalized = text.trim();
     if (normalized.isEmpty) {
       return 0;
     }
 
-    return normalized.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
+    return normalized
+        .split(RegExp(r'\s+'))
+        .where((word) => word.isNotEmpty)
+        .length;
   }
 
   Map<String, int> getStatistics([DateTime? startDate, DateTime? endDate]) {
@@ -32,8 +52,8 @@ class EntryService extends GetxController {
       if (dateTime == null) {
         return;
       }
-      bool isInRange = (startDate == null || dateTime.isAfter(startDate)) &&
-          (endDate == null || dateTime.isBefore(endDate));
+      final isInRange =
+          _isInDateRange(dateTime, startDate: startDate, endDate: endDate);
 
       if (isInRange) {
         final mood = value["mood"] as String;
@@ -44,7 +64,8 @@ class EntryService extends GetxController {
     return statistics;
   }
 
-  Map<String, int> getCommentStatistics([DateTime? startDate, DateTime? endDate]) {
+  Map<String, int> getCommentStatistics(
+      [DateTime? startDate, DateTime? endDate]) {
     var entries = storage.toMap();
     final commentStatistics = <String, int>{};
 
@@ -53,8 +74,8 @@ class EntryService extends GetxController {
       if (dateTime == null) {
         return;
       }
-      bool isInRange = (startDate == null || dateTime.isAfter(startDate)) &&
-          (endDate == null || dateTime.isBefore(endDate));
+      final isInRange =
+          _isInDateRange(dateTime, startDate: startDate, endDate: endDate);
 
       if (isInRange) {
         final comment = value["comment"] as String;
@@ -65,7 +86,11 @@ class EntryService extends GetxController {
     return commentStatistics;
   }
 
-  Map<String, int> getMonthlyStatistics({int monthsBack = 6}) {
+  Map<String, int> getMonthlyStatistics({
+    int monthsBack = 6,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
     final entries = storage.toMap();
     final now = DateTime.now();
     final from = DateTime(now.year, now.month - monthsBack + 1, 1);
@@ -76,18 +101,27 @@ class EntryService extends GetxController {
       if (dateTime == null) {
         return;
       }
-      if (dateTime.isBefore(from)) {
+      if (startDate != null || endDate != null) {
+        if (!_isInDateRange(dateTime, startDate: startDate, endDate: endDate)) {
+          return;
+        }
+      } else if (dateTime.isBefore(from)) {
         return;
       }
 
-      final monthKey = '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}';
+      final monthKey =
+          '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}';
       monthly[monthKey] = (monthly[monthKey] ?? 0) + 1;
     });
 
     return monthly;
   }
 
-  Map<String, int> getMonthlyCommentStatistics({int monthsBack = 6}) {
+  Map<String, int> getMonthlyCommentStatistics({
+    int monthsBack = 6,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
     final entries = storage.toMap();
     final now = DateTime.now();
     final from = DateTime(now.year, now.month - monthsBack + 1, 1);
@@ -95,7 +129,15 @@ class EntryService extends GetxController {
 
     entries.forEach((key, value) {
       final dateTime = _parseEntryDateKey(key.toString());
-      if (dateTime == null || dateTime.isBefore(from)) {
+      if (dateTime == null) {
+        return;
+      }
+
+      if (startDate != null || endDate != null) {
+        if (!_isInDateRange(dateTime, startDate: startDate, endDate: endDate)) {
+          return;
+        }
+      } else if (dateTime.isBefore(from)) {
         return;
       }
 
@@ -104,14 +146,16 @@ class EntryService extends GetxController {
         return;
       }
 
-      final monthKey = '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}';
+      final monthKey =
+          '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}';
       monthly[monthKey] = (monthly[monthKey] ?? 0) + 1;
     });
 
     return monthly;
   }
 
-  Map<String, dynamic> getCommentWordStatistics([DateTime? startDate, DateTime? endDate]) {
+  Map<String, dynamic> getCommentWordStatistics(
+      [DateTime? startDate, DateTime? endDate]) {
     final entries = storage.toMap();
     var totalWords = 0;
     var commentsWithText = 0;
@@ -124,8 +168,8 @@ class EntryService extends GetxController {
         return;
       }
 
-      final isInRange = (startDate == null || dateTime.isAfter(startDate)) &&
-          (endDate == null || dateTime.isBefore(endDate));
+      final isInRange =
+          _isInDateRange(dateTime, startDate: startDate, endDate: endDate);
       if (!isInRange) {
         return;
       }
@@ -145,7 +189,8 @@ class EntryService extends GetxController {
       }
     });
 
-    final averageWords = commentsWithText == 0 ? 0.0 : totalWords / commentsWithText;
+    final averageWords =
+        commentsWithText == 0 ? 0.0 : totalWords / commentsWithText;
 
     return {
       "totalWords": totalWords,
