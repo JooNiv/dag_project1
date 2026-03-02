@@ -19,7 +19,7 @@ class StatisticsScreen extends StatelessWidget {
         body: ResponsiveWidget(
             mobile: MobileStatisticsScreen(),
             tablet: TabletStatisticsScreen(),
-            desktop: DesktopStatisticsScreen()));
+            desktop: Center(child: SizedBox(width: 1000, child: DesktopStatisticsScreen()))));
   }
 }
 
