@@ -13,6 +13,8 @@ import '../components/buttons.dart';
 
 // ignore: must_be_immutable
 class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ScreenBase(
@@ -76,135 +78,137 @@ class DesktopSettings extends StatelessWidget {
       child: Center(
         child: Container(
           padding: const EdgeInsets.only(right: 50, left: 50, top: 50),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
           width: 1000,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Settings",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-              FormBuilder(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FormBuilderTextField(
-                        name: "name",
-                        initialValue: settingsService.getName(),
-                        validator: FormBuilderValidators.required(),
-                        decoration: const InputDecoration(
-                            labelText: "Your Name",
-                            border: OutlineInputBorder()),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Settings",
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  FormBuilder(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                        Obx(() => Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                          FormBuilderTextField(
+                            name: "name",
+                            initialValue: settingsService.getName(),
+                            validator: FormBuilderValidators.required(),
+                            decoration: const InputDecoration(
+                                labelText: "Your Name",
+                                border: OutlineInputBorder()),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                ...colorSettings.entries.map((entry) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        right: 10, top: 17, bottom: 17),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                Obx(() => Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                          CrossAxisAlignment.end,
                                       children: [
-                                        Center(child: Text(entry.key)),
-                                        const SizedBox(width: 10),
-                                        GestureDetector(
-                                          onTap: () {
-                                            pickerColor.value = entry.value;
-                                            selectedColorSettingKey.value =
-                                                entry.key;
-                                          },
-                                          child: Container(
-                                            width: 30,
-                                            height: 30,
-                                            decoration: BoxDecoration(
-                                              color: entry.value,
-                                              border: Border.all(
-                                                color: selectedColorSettingKey
-                                                            .value ==
-                                                        entry.key
-                                                    ? Colors.black
-                                                    : Colors.grey,
-                                                width: selectedColorSettingKey
-                                                            .value ==
-                                                        entry.key
-                                                    ? 3
-                                                    : 1,
-                                              ),
+                                        ...colorSettings.entries.map((entry) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 10, top: 17, bottom: 17),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Center(child: Text(entry.key)),
+                                                const SizedBox(width: 10),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    pickerColor.value =
+                                                        entry.value;
+                                                    selectedColorSettingKey
+                                                        .value = entry.key;
+                                                  },
+                                                  child: Container(
+                                                    width: 30,
+                                                    height: 30,
+                                                    decoration: BoxDecoration(
+                                                      color: entry.value,
+                                                      border: Border.all(
+                                                        color:
+                                                            selectedColorSettingKey
+                                                                        .value ==
+                                                                    entry.key
+                                                                ? Colors.black
+                                                                : Colors.grey,
+                                                        width:
+                                                            selectedColorSettingKey
+                                                                        .value ==
+                                                                    entry.key
+                                                                ? 3
+                                                                : 1,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        })
                                       ],
-                                    ),
-                                  );
-                                })
-                              ],
-                            )),
-                        Obx(() => ColorPicker(
-                            pickerColor: pickerColor.value,
-                            onColorChanged: changeColor)),
-                      ]),
-                      const SizedBox(height: 20),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            NormalButton(
-                                onPressed: () async {
-                                  await _handleButtonPress();
-                                },
-                                text: "Save Settings"),
-                            const SizedBox(height: 20),
-                            WarningButton(
-                              onPressed: () async {
-                                await settingsService.resetColorSettings();
-                                final raw = settingsService.getColorSettings();
-                                if (raw is Map<String, Color>) {
-                                  colorSettings.assignAll(raw);
-                                } else if (raw is Map) {
-                                  colorSettings.assignAll(
-                                    raw.map(
-                                      (k, v) => MapEntry(k.toString(),
-                                          v is Color ? v : Color(v as int)),
-                                    ),
-                                  );
-                                }
-                                selectedColorSettingKey.value = "Very Bad";
-                                pickerColor.value =
-                                    const Color.fromARGB(255, 156, 39, 176);
-                              },
-                              text: "Reset Colors",
-                            ),
-                            const SizedBox(height: 20),
-                            DangerButton(
-                                onPressed: () async {
-                                  await entryService.removeAll();
-                                  await settingsService.removeAll();
-                                  Get.toNamed("/welcome");
-                                },
-                                text: "Delete all data")
-                          ])
-                    ],
-                  ))
-            ],
+                                    )),
+                                Obx(() => ColorPicker(
+                                    pickerColor: pickerColor.value,
+                                    onColorChanged: changeColor)),
+                              ]),
+                          const SizedBox(height: 20),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                NormalButton(
+                                    onPressed: () async {
+                                      await _handleButtonPress();
+                                    },
+                                    text: "Save Settings"),
+                                const SizedBox(height: 20),
+                                WarningButton(
+                                  onPressed: () async {
+                                    await settingsService.resetColorSettings();
+                                    final raw =
+                                        settingsService.getColorSettings();
+                                    if (raw is Map<String, Color>) {
+                                      colorSettings.assignAll(raw);
+                                    } else if (raw is Map) {
+                                      colorSettings.assignAll(
+                                        raw.map(
+                                          (k, v) => MapEntry(k.toString(),
+                                              v is Color ? v : Color(v as int)),
+                                        ),
+                                      );
+                                    }
+                                    selectedColorSettingKey.value = "Very Bad";
+                                    pickerColor.value =
+                                        const Color.fromARGB(255, 156, 39, 176);
+                                  },
+                                  text: "Reset Colors",
+                                ),
+                                const SizedBox(height: 20),
+                                DangerButton(
+                                    onPressed: () async {
+                                      await entryService.removeAll();
+                                      await settingsService.removeAll();
+                                      Get.toNamed("/welcome");
+                                    },
+                                    text: "Delete all data")
+                              ])
+                        ],
+                      ))
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -342,7 +346,6 @@ class MobileSettings extends StatelessWidget {
                                           ? 3
                                           : 1,
                                     ),
-                                    borderRadius: BorderRadius.circular(16),
                                   ),
                                 ),
                               ),

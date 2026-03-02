@@ -4,14 +4,15 @@ import 'package:get/get.dart';
 import '../components/entry_form.dart';
 import '../components/floating_button.dart';
 import '../components/screen_base.dart';
+import '../utils/date_utils.dart';
 
 class EntryScreen extends StatelessWidget {
   const EntryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    String dateTimeString = Get.parameters["dateTimeString"] ??
-        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
+    final String dateTimeString =
+        Get.parameters["dateTimeString"] ?? formatDateKey(DateTime.now());
     return ScreenBase(
       floatingActionButton:
           const FloatingButton(route: "/", icon: Icons.arrow_back),

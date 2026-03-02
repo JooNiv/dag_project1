@@ -3,18 +3,17 @@ import 'package:get/get.dart';
 
 import 'responsive_widget.dart';
 import 'buttons.dart';
+import '../utils/date_utils.dart';
 
 class BottomNav extends StatelessWidget {
   BottomNav({super.key});
 
-  final date = DateTime.now();
-
-  final dateTimeString =
-      "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
+  final String dateTimeString = todayDateKey();
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveWidget(
+        xsMobile: Container(height: 0,),
         mobile: Container(
             height: 50,
             color: Colors.blueGrey,

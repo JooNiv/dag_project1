@@ -31,7 +31,7 @@ dependencies:
   hive_ce: 2.5.0+2
   hive_ce_flutter: 2.0.0
   flutter_colorpicker: 1.1.0
-
+  fl_chart: 0.66.2
 
 dev_dependencies:
   flutter_test:

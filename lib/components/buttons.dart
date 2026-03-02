@@ -11,9 +11,8 @@ class NormalButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color.fromARGB(255, 81, 192, 7),
-        //side: const BorderSide(color: Color.fromARGB(128, 29, 180, 255), width: 1),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Less rounded corners
+          borderRadius: BorderRadius.circular(8),
         ),
         shadowColor: Colors.black,
         elevation: 4,
@@ -35,9 +34,8 @@ class DangerButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.red,
-        //side: const BorderSide(color: Colors.black, width: 2),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Less rounded corners
+          borderRadius: BorderRadius.circular(8)
         ),
         shadowColor: Colors.black,
         elevation: 4,
@@ -59,9 +57,8 @@ class WarningButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color.fromARGB(255, 243, 159, 69),
-        //side: const BorderSide(color: Colors.black, width: 2),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Less rounded corners
+          borderRadius: BorderRadius.circular(8)
         ),
         shadowColor: Colors.black,
         elevation: 4,
@@ -87,7 +84,6 @@ class NavDrawerButtons extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          //side: const BorderSide(color: Colors.grey, width: 1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0),
           ),

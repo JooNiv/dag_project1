@@ -17,12 +17,32 @@ class DrawerComponent extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: NavDrawerButtons(
-                onPressed: () => Get.toNamed("/welcome"),
-                text: "Intro Screen",
+                onPressed: () => Get.back(),
+                text: "Back",
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
               ),
             ),
           ),
-          const SizedBox(height: 0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: NavDrawerButtons(
+                onPressed: () => Get.toNamed("/"),
+                text: "Home",
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: NavDrawerButtons(
+                onPressed: () => Get.toNamed("/statistics"),
+                text: "Statistics",
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0.0),
             child: SizedBox(
@@ -39,11 +59,14 @@ class DrawerComponent extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: NavDrawerButtons(
-                onPressed: () => Get.toNamed("/"),
-                text: "Home",
+                onPressed: () => Get.toNamed("/welcome"),
+                text: "Intro Screen",
               ),
             ),
           ),
+          const SizedBox(height: 0),
+          
+          
         ],
       ),
     );

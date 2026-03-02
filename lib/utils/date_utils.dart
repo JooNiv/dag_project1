@@ -20,33 +20,51 @@ weekdayIndexToName(int index) {
   }
 }
 
-dateTimeStringToDateTime(String dateTimeString) {
-  final parts = dateTimeString.split("-");
+String formatDateKey(DateTime date) {
+  return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+}
+
+String buildDateKey(int year, int month, int day) {
+  return formatDateKey(DateTime(year, month, day));
+}
+
+String todayDateKey() => formatDateKey(DateTime.now());
+
+DateTime? parseDateKey(String key) {
+  final parsed = DateTime.tryParse(key);
+  if (parsed != null) {
+    return DateTime(parsed.year, parsed.month, parsed.day);
+  }
+
+  final parts = key.split("-");
   if (parts.length != 3) return null;
+
   final year = int.tryParse(parts[0]);
   final month = int.tryParse(parts[1]);
   final day = int.tryParse(parts[2]);
+
   if (year == null || month == null || day == null) return null;
   return DateTime(year, month, day);
 }
 
-getDayNameThisYear(int month, int day) {
-  final date = DateTime(DateTime.now().year, month + 1, day);
+DateTime? dateTimeStringToDateTime(String dateTimeString) {
+  return parseDateKey(dateTimeString);
+}
+
+String getDayNameThisYear(int month, int day, {int? year}) {
+  final y = year ?? DateTime.now().year;
+  final date = DateTime(y, month + 1, day);
   return weekdayIndexToName(date.weekday);
 }
 
-getDaysInAMonth(int month) {
-  if (month == 1) {
-    final year = DateTime.now().year;
-    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
-      return 29;
-    }
-  }
-  return daysInAMonthMatrix[month];
+int getDaysInAMonth(int month, {int? year}) {
+  final y = year ?? DateTime.now().year;
+  return DateTime(y, month + 2, 0).day;
 }
 
-getIndexOfFirstDayInAMonth(int month) {
-  final date = DateTime(DateTime.now().year, month + 1, 1);
+int getIndexOfFirstDayInAMonth(int month, {int? year}) {
+  final y = year ?? DateTime.now().year;
+  final date = DateTime(y, month + 1, 1);
   return date.weekday;
 }
 

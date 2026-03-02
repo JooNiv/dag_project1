@@ -8,6 +8,7 @@ import "screens/home_screen.dart";
 import "screens/intro_screen.dart";
 import "screens/settings_screen.dart";
 import "screens/entry_screen.dart";
+import "screens/statistics_screen.dart";
 
 Future<void> main() async {
   await Hive.initFlutter();
@@ -30,8 +31,9 @@ Future<void> main() async {
       getPages: [
         GetPage(name: "/", page: () => const HomeScreen()),
         GetPage(name: "/welcome", page: () => IntroScreen()),
-        GetPage(name: "/settings", page: () => SettingsScreen()),
+        GetPage(name: "/settings", page: () => const SettingsScreen()),
         GetPage(name: "/entry/:dateTimeString", page: () => const EntryScreen()),
+        GetPage(name: "/statistics", page: () => const StatisticsScreen())
       ],
   ));
 }

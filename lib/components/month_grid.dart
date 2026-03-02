@@ -6,68 +6,61 @@ import '../services/entry_service.dart';
 
 class MonthGrid extends StatelessWidget {
   final int month;
+  final int year;
 
-  MonthGrid({super.key, required this.month});
+  MonthGrid({super.key, required this.month, required this.year});
 
   final EntryService entryService = Get.find<EntryService>();
 
   @override
   Widget build(BuildContext context) {
-    int padBeginningSquares = getIndexOfFirstDayInAMonth(month) - 1 + 7;
+    final padBeginningSquares = getIndexOfFirstDayInAMonth(month, year: year) - 1 + 7;
 
-    return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
+    return Card(
+      child: Container(
         width: 500,
         padding: const EdgeInsets.only(right: 20, left: 20, top: 20, bottom: 10),
         margin: const EdgeInsets.only(bottom: 20),
-        child: Column(children: [
-          Text(
-            monthNames[month],
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        child: Column(
+          children: [
+            Text(
+              '${monthNames[month]} $year',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 childAspectRatio: 1,
                 crossAxisSpacing: 4,
                 mainAxisSpacing: 4,
-                crossAxisCount: 7),
-            itemBuilder: (context, index) {
-              if (index < 7) {
-                return _buildWeekdayHeader(index);
-              }
-              else if (index < padBeginningSquares) {
-                return _buildPaddingSquare();
-              }
-              else {
-                final day = index + 1 - padBeginningSquares;
-                final dateTimeString = "2026-${month + 1}-$day";
-                final todayDateTimeString =
-                    "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
-                final color = entryService.getColorForDate(dateTimeString);
+                crossAxisCount: 7,
+              ),
+              itemBuilder: (context, index) {
+                if (index < 7) {
+                  return _buildWeekdayHeader(index);
+                } else if (index < padBeginningSquares) {
+                  return _buildPaddingSquare();
+                } else {
+                  final day = index + 1 - padBeginningSquares;
+                  final dateTimeString = buildDateKey(year, month + 1, day);
+                  final color = entryService.getColorForDate(dateTimeString);
 
-                return _buildDateSquare(
-                  day: day,
-                  month: month,
-                  color: color,
-                  isToday: dateTimeString == todayDateTimeString,
-                );
-              }
-            },
-            itemCount: getDaysInAMonth(month) + padBeginningSquares,
-          )
-        ]));
+                  return _buildDateSquare(
+                    day: day,
+                    month: month,
+                    year: year,
+                    color: color,
+                    isToday: dateTimeString == todayDateKey(),
+                  );
+                }
+              },
+              itemCount: getDaysInAMonth(month, year: year) + padBeginningSquares,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -89,8 +82,13 @@ Widget _buildPaddingSquare() {
   );
 }
 
-Widget _buildDateSquare(
-    {required int day, required month, required Color color, required bool isToday}) {
+Widget _buildDateSquare({
+  required int day,
+  required int month,
+  required int year,
+  required Color color,
+  required bool isToday,
+}) {
   final decoration = isToday
       ? BoxDecoration(
           color: color,
@@ -100,7 +98,7 @@ Widget _buildDateSquare(
 
   return GestureDetector(
     onTap: () {
-      Get.toNamed("/entry/${DateTime.now().year}-${month + 1}-$day");
+      Get.toNamed("/entry/${buildDateKey(year, month + 1, day)}");
     },
     child: Container(
       decoration: decoration,
